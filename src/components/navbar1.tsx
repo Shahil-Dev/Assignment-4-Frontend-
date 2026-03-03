@@ -1,19 +1,12 @@
 "use client";
 
-import { Menu, ShoppingCart, User, ChevronDown, Search } from "lucide-react";
+import { Menu, ShoppingCart, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion,  } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
-import { 
-  NavigationMenu, 
-  NavigationMenuItem, 
-  NavigationMenuLink, 
-  NavigationMenuList, 
-  NavigationMenuTrigger,
-  NavigationMenuContent 
-} from "./ui/navigation-menu";
+
 import Link from "next/link";
 
 const Navbar1 = () => {
@@ -22,12 +15,12 @@ const Navbar1 = () => {
   const menu = [
     { title: "Home", url: "/" },
     { title: "Browse Meals", url: "/meals" },
-    { title: "Providers", url: "/providers/1" },
+    { title: "Providers", url: "/providers" },
   ];
 
   return (
     <header className="fixed top-0 w-full z-[100] transition-all duration-300 glass-effect">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 lg:max-w-6xl lg:mx-auto md:px-6">
         <nav className="flex items-center justify-between h-20">
           
           {/* Gorgeous Logo */}
@@ -35,7 +28,7 @@ const Navbar1 = () => {
             <div className="bg-gradient-to-tr from-[#D70F64] to-[#ff4d94] p-2 rounded-xl shadow-lg shadow-pink-200 group-hover:scale-110 transition-transform">
               <ShoppingCart className="text-white size-5" />
             </div>
-            <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+            <span className="text-2xl font-black lg:text-4xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r heading from-gray-900 to-gray-600">
               Foodie<span className="text-[#D70F64]">.</span>
             </span>
           </Link>
@@ -64,6 +57,8 @@ const Navbar1 = () => {
 
           {/* Action Buttons */}
           <div className="hidden lg:flex items-center gap-3">
+
+            
             <Button variant="ghost" size="icon" className="rounded-full hover:bg-pink-50">
               <Search className="size-5 text-gray-600" />
             </Button>
