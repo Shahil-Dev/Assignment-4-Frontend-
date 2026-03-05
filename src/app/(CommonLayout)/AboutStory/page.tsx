@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Heart, ShieldCheck, Target, Users } from "lucide-react";
+import { Heart, Target, Users } from "lucide-react";
 
 const AboutUs = () => {
     return (

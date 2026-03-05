@@ -1,6 +1,7 @@
 import ChefStory from "@/src/components/ChefStory";
 import Features from "@/src/components/Features";
 import { HeroSection } from "@/src/components/HeroSection";
+import MealGrid from "@/src/components/MealGrid";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSection></HeroSection>
       <Features></Features>
       <ChefStory></ChefStory>
+      <MealGrid></MealGrid>
     </div>
   );
 }
@@ -15,3 +17,6 @@ export default function Home() {
 
 
 
+/**
+ *
+ */

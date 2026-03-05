@@ -118,7 +118,6 @@ const ChefStory = () => {
                             </Link>
                         </motion.div>
                     </div>
-
                 </div>
             </div>
         </section>
