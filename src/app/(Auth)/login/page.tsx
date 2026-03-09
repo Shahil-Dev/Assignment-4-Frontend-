@@ -37,9 +37,9 @@ export default function LoginPage() {
       
         localStorage.setItem("user", JSON.stringify(res.data));
 
-        // setTimeout(() => {
-        //   router.push("/dashboard");
-        // }, 1200);
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1200);
       } else {
         toast.error(res.message || "Invalid response from server", { id: toastId });
       }
