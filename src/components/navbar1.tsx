@@ -8,18 +8,28 @@ import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useCart } from "../context/CartContext";
 
 const Navbar1 = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { cartCount } = useCart(); 
   const [user, setUser] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    const checkUser = () => {
+      const savedUser = localStorage.getItem("user"); 
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkUser();
+    window.addEventListener("storage", checkUser);
+    return () => window.removeEventListener("storage", checkUser);
   }, []);
 
   const handleLogout = () => {
@@ -37,10 +47,10 @@ const Navbar1 = () => {
   ];
 
   return (
-    <header className="fixed top-0 w-full z-[100] transition-all duration-300 glass-effect border-b border-gray-100/50">
+    <header className="fixed top-0 w-full z-[100] transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-gray-100/50">
       <div className="container mx-auto px-4 lg:max-w-6xl lg:mx-auto md:px-6">
         <nav className="flex items-center justify-between h-20">
-          
+
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="bg-gradient-to-tr from-[#D70F64] to-[#ff4d94] p-2 rounded-xl shadow-lg shadow-pink-200 group-hover:scale-110 transition-transform">
@@ -78,13 +88,17 @@ const Navbar1 = () => {
             <Button variant="ghost" size="icon" className="rounded-full hover:bg-pink-50">
               <Search className="size-5 text-gray-600" />
             </Button>
-            
+
             <div className="relative group">
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-pink-50 transition-all">
-                <ShoppingCart className="size-5 text-gray-700 group-hover:text-[#D70F64]" />
-                <span className="absolute top-1 right-1 bg-[#D70F64] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border-2 border-white">
-                  0
-                </span>
+              <Button asChild variant="ghost" size="icon" className="rounded-full hover:bg-pink-50 transition-all">
+                <Link href="/Card">
+                  <ShoppingCart className="size-5 text-gray-700 group-hover:text-[#D70F64]" />
+                  {cartCount > 0 && (
+                    <span className="absolute top-1 right-1 bg-[#D70F64] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border-2 border-white animate-in zoom-in">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
               </Button>
             </div>
 
@@ -96,18 +110,16 @@ const Navbar1 = () => {
               </Button>
             ) : (
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  onMouseEnter={() => setIsProfileOpen(true)}
                   className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-pink-50 transition-all border border-transparent hover:border-pink-100"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#D70F64] to-[#ff4d94] flex items-center justify-center text-white border-2 border-white shadow-sm overflow-hidden">
-                    <User size={20} />
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#D70F64] to-[#ff4d94] flex items-center justify-center text-white border-2 border-white shadow-sm overflow-hidden font-black uppercase">
+                    {user.name?.[0] || <User size={20} />}
                   </div>
                   <ChevronDown size={14} className={cn("text-gray-400 transition-transform", isProfileOpen && "rotate-180")} />
                 </button>
 
-                {/* Dropdown Menu */}
                 <AnimatePresence>
                   {isProfileOpen && (
                     <motion.div
@@ -117,24 +129,25 @@ const Navbar1 = () => {
                       onMouseLeave={() => setIsProfileOpen(false)}
                       className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-gray-100 p-2 z-[110]"
                     >
-                      {/* User Info Section (Hover effect placeholder) */}
                       <div className="px-4 py-4 border-b border-gray-50 mb-2 bg-gray-50/50 rounded-t-xl">
-                        <p className="text-[10px] text-[#D70F64] font-black uppercase tracking-widest mb-1">{user.role}</p>
+                        <p className="text-[10px] text-[#D70F64] font-black uppercase tracking-widest mb-1">
+                          {user.role || "Customer"}
+                        </p>
                         <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
                         <p className="text-xs text-gray-400 font-medium truncate">{user.email}</p>
                       </div>
 
                       <div className="space-y-1">
-                        <Link 
-                          href="/dashboard" 
+                        <Link
+                          href={user.role === "ADMIN" ? "/admin" : user.role === "PROVIDER" ? "/provider/dashboard" : "/dashboard"}
                           onClick={() => setIsProfileOpen(false)}
                           className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-pink-50 hover:text-[#D70F64] rounded-xl transition-all font-bold text-sm group"
                         >
                           <LayoutDashboard size={18} className="group-hover:scale-110 transition-transform" />
-                          User Dashboard
+                          My Dashboard
                         </Link>
 
-                        <button 
+                        <button
                           onClick={handleLogout}
                           className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all font-bold text-sm group"
                         >
@@ -151,45 +164,49 @@ const Navbar1 = () => {
 
           {/* Mobile Menu */}
           <div className="lg:hidden flex items-center gap-4">
-            <div className="relative mr-2">
-               <ShoppingCart className="size-6 text-gray-700" />
-               <span className="absolute -top-1 -right-1 bg-[#D70F64] text-white text-[9px] h-4 w-4 flex items-center justify-center rounded-full">0</span>
-            </div>
+            <Link href="/Card" className="relative mr-2 p-1">
+              <ShoppingCart className="size-6 text-gray-700" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#D70F64] text-white text-[9px] h-4 w-4 flex items-center justify-center rounded-full border border-white">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-gray-900">
                   <Menu className="size-7" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[350px] border-l-0 glass-effect">
+              <SheetContent side="right" className="w-[300px] sm:w-[350px] border-l-0 bg-white">
                 <SheetHeader className="text-left border-b pb-6">
                   <SheetTitle className="text-2xl font-black text-[#D70F64]">Foodie.</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-8 mt-10">
+                <div className="flex flex-col gap-6 mt-10">
                   {menu.map((item) => (
-                    <Link 
-                      key={item.title} 
-                      href={item.url} 
+                    <Link
+                      key={item.title}
+                      href={item.url}
                       className={cn(
                         "text-xl font-bold transition-all",
-                        pathname === item.url ? "text-[#D70F64] pl-2 border-l-4 border-[#D70F64]" : "text-gray-700"
+                        pathname === item.url ? "text-[#D70F64] border-l-4 border-[#D70F64] pl-3" : "text-gray-700"
                       )}
                     >
                       {item.title}
                     </Link>
                   ))}
-                  
-                  <div className="flex flex-col gap-4 mt-6">
+
+                  <div className="flex flex-col gap-4 mt-10">
                     {user ? (
                       <>
-                        <div className="p-4 bg-pink-50 rounded-2xl mb-4">
-                          <p className="text-sm font-black text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
+                        <div className="p-4 bg-gray-50 rounded-2xl">
+                          <p className="text-xs text-[#D70F64] font-black uppercase mb-1">{user.role}</p>
+                          <p className="text-base font-bold text-gray-900">{user.name}</p>
                         </div>
-                        <Button asChild className="w-full bg-gray-900 py-6 rounded-2xl font-bold text-lg">
+                        <Button asChild className="w-full bg-gray-900 py-6 rounded-2xl font-bold">
                           <Link href="/dashboard">Dashboard</Link>
                         </Button>
-                        <Button onClick={handleLogout} variant="outline" className="w-full py-6 rounded-2xl font-bold text-lg border-2 text-red-600">
+                        <Button onClick={handleLogout} variant="outline" className="w-full py-6 rounded-2xl font-bold border-2 text-red-600">
                           Logout
                         </Button>
                       </>
@@ -199,7 +216,7 @@ const Navbar1 = () => {
                           <Link href="/login">Get Started</Link>
                         </Button>
                         <Button variant="outline" asChild className="w-full py-7 rounded-2xl text-lg font-bold border-2">
-                          <Link href="/Registration">Create Account</Link>
+                          <Link href="/register">Create Account</Link>
                         </Button>
                       </>
                     )}

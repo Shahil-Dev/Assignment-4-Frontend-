@@ -18,28 +18,34 @@ export const MealCard = ({ meal }: { meal: any }) => {
 
   const imageSrc = meal.imageUrl && meal.imageUrl.trim() !== "" ? meal.imageUrl : DEFAULT_IMAGE;
 
-  const handleAction = (e: React.MouseEvent, type: "details" | "cart") => {
-    e.preventDefault();
-    const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
 
-    if (!user) {
-      setIsModalOpen(true);
+
+const handleAction = (e: React.MouseEvent, type: "details" | "cart") => {
+  e.preventDefault();
+  const user = typeof window !== "undefined" ? localStorage.getItem("USER") : null;
+
+  if (!user) {
+    setIsModalOpen(true);
+  } else {
+    if (type === "details") {
+      router.push(`/meals/${meal.id}`);
     } else {
-      if (type === "details") {
-        router.push(`/meals/${meal.id}`);
-      } else {
-        addToCart({
-          id: meal.id,
-          name: meal.name,
-          price: meal.price,
-          imageUrl: imageSrc,
-          quantity: 1,
-          providerId: meal.providerId
-        });
-        toast.success(`${meal.name} added to cart!`);
-      }
+      addToCart({
+        id: meal.id,
+        name: meal.name,
+        price: meal.price,
+        imageUrl: imageSrc,
+        quantity: 1, 
+        providerId: meal.providerId
+      });
+      toast.success(`${meal.name} added to cart!`, {
+        description: "Check your cart to complete the order.",
+      });
     }
-  };
+  }
+};
+
+
 
   return (
     <>
