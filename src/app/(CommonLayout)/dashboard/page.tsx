@@ -4,177 +4,170 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
   ShoppingBag, 
-  Users, 
   DollarSign, 
   TrendingUp, 
   Clock, 
   CheckCircle2, 
   Package,
-  ArrowUpRight
+  ArrowUpRight,
+  Loader2,
+  PlusCircle
 } from "lucide-react";
-
-// এনিমেশন ভেরিয়েন্ট
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const item = {
-  hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1 }
-};
+import { format } from "date-fns";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) setUser(JSON.parse(savedUser));
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+      fetchDashboardData(parsedUser.token); 
+    }
   }, []);
 
-  const stats = [
-    { title: "Total Orders", value: "124", icon: Package, color: "bg-blue-500", trend: "+12%" },
-    { title: "Active Bookings", value: "12", icon: Clock, color: "bg-orange-500", trend: "+5%" },
-    { title: "Total Spent", value: "$4,250", icon: DollarSign, color: "bg-emerald-500", trend: "+18%" },
-    { title: "Success Rate", value: "98%", icon: CheckCircle2, color: "bg-purple-500", trend: "+2%" },
-  ];
+  const fetchDashboardData = async (token: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/my-orders`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setOrders(data.data); 
+        calculateStats(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateStats = (allOrders: any[]) => {
+    const totalSpent = allOrders.reduce((acc, curr) => acc + curr.amount, 0);
+    const pending = allOrders.filter(o => o.status === "PENDING").length;
+    
+    setStats({
+      totalOrders: allOrders.length,
+      pendingOrders: pending,
+      totalSpent: `$${totalSpent}`,
+      successRate: allOrders.length > 0 ? "100%" : "0%"
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#D70F64]" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <motion.div 
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-        >
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-            Overview<span className="text-[#D70F64]">.</span>
+        <div>
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight italic">
+            Dashboard<span className="text-[#D70F64]">.</span>
           </h1>
-          <p className="text-gray-500 font-medium mt-1">
-            Hello, {user?.name || "User"}! Here's what's happening today.
+          <p className="text-gray-500 font-medium mt-1 uppercase text-xs tracking-widest">
+            Welcome, {user?.name} ({user?.role})
           </p>
-        </motion.div>
+        </div>
 
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-gray-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-gray-200"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="bg-[#D70F64] text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg shadow-pink-100"
         >
-          <PlusCircle className="size-5" />
-          {user?.role === "PROVIDER" ? "Add New Service" : "New Order"}
+          <PlusCircle size={20} />
+          {user?.role === "PROVIDER" ? "Add New Meal" : "Browse Meals"}
         </motion.button>
       </div>
 
-      {/* Stats Grid */}
+      {/* Dynamic Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Orders" value={stats?.totalOrders || 0} icon={Package} color="bg-blue-500" />
+        <StatCard title="Pending" value={stats?.pendingOrders || 0} icon={Clock} color="bg-orange-500" />
+        <StatCard title="Total Spent" value={stats?.totalSpent || "$0"} icon={DollarSign} color="bg-emerald-500" />
+        <StatCard title="Growth" value={stats?.successRate || "0%"} icon={TrendingUp} color="bg-purple-500" />
+      </div>
+
+      {/* Recent Orders Table */}
       <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-[3rem] border border-gray-100 p-8 shadow-sm overflow-hidden"
       >
-        {stats.map((stat, idx) => (
-          <motion.div 
-            key={idx}
-            variants={item}
-            className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-pink-50 transition-all group"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div className={`${stat.color} p-3 rounded-2xl text-white shadow-lg`}>
-                <stat.icon size={24} />
-              </div>
-              <span className="flex items-center gap-1 text-emerald-500 font-bold text-xs bg-emerald-50 px-2 py-1 rounded-full">
-                {stat.trend} <TrendingUp size={12} />
-              </span>
-            </div>
-            <h3 className="text-gray-500 font-bold text-sm uppercase tracking-wider">{stat.title}</h3>
-            <p className="text-3xl font-black text-gray-900 mt-1">{stat.value}</p>
-          </motion.div>
-        ))}
-      </motion.div>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Recent Activity</h2>
+          <button className="text-[#D70F64] font-black text-sm flex items-center gap-1 hover:underline">
+            Refresh List <ArrowUpRight size={16} />
+          </button>
+        </div>
 
-      {/* Recent Activity Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Table Area */}
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-white rounded-[3rem] border border-gray-100 p-8 shadow-sm"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Recent Transactions</h2>
-            <button className="text-[#D70F64] font-bold text-sm hover:underline flex items-center gap-1">
-              View All <ArrowUpRight size={16} />
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
+          {orders.length > 0 ? (
             <table className="w-full text-left">
               <thead>
-                <tr className="text-gray-400 text-sm uppercase tracking-widest border-b border-gray-50">
-                  <th className="pb-4 font-black">Service</th>
-                  <th className="pb-4 font-black">Date</th>
-                  <th className="pb-4 font-black">Status</th>
-                  <th className="pb-4 font-black">Amount</th>
+                <tr className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] border-b border-gray-50">
+                  <th className="pb-6">Meal/Service</th>
+                  <th className="pb-6">Date</th>
+                  <th className="pb-6">Status</th>
+                  <th className="pb-6">Price</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {[1, 2, 3].map((i) => (
-                  <tr key={i} className="group transition-colors hover:bg-gray-50/50">
-                    <td className="py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center text-[#D70F64]">
-                          <ShoppingBag size={18} />
-                        </div>
-                        <span className="font-bold text-gray-800">Pizza Margherita</span>
-                      </div>
+                {orders.map((order: any) => (
+                  <tr key={order.id} className="group hover:bg-gray-50/50 transition-colors">
+                    <td className="py-6 font-bold text-gray-900">{order.mealName || "Standard Meal"}</td>
+                    <td className="py-6 text-gray-500 text-sm font-medium">
+                      {format(new Date(order.createdAt), 'MMM dd, yyyy')}
                     </td>
-                    <td className="py-5 text-gray-500 font-medium">March 09, 2026</td>
-                    <td className="py-5">
-                      <span className="px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-xs font-black">Completed</span>
+                    <td className="py-6">
+                      <span className={`px-4 py-1 rounded-full text-[10px] font-black tracking-widest ${
+                        order.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'
+                      }`}>
+                        {order.status}
+                      </span>
                     </td>
-                    <td className="py-5 font-black text-gray-900">$24.00</td>
+                    <td className="py-6 font-black text-gray-900">${order.amount}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        </motion.div>
-
-        {/* Profile/Side Card */}
-        <motion.div 
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-[#D70F64] to-[#ff4d94] rounded-[3rem] p-8 text-white shadow-2xl shadow-pink-200 relative overflow-hidden"
-        >
-          <div className="relative z-10">
-            <div className="w-20 h-20 bg-white/20 rounded-3xl backdrop-blur-md flex items-center justify-center mb-6">
-              <Users size={40} />
+          ) : (
+            <div className="py-20 text-center">
+              <p className="text-gray-400 font-bold uppercase tracking-widest">No orders found yet!</p>
             </div>
-            <h3 className="text-2xl font-black mb-2">Upgrade to Pro</h3>
-            <p className="text-white/80 font-medium text-sm mb-8 leading-relaxed">
-              Unlock advanced features like analytics, priority support, and custom branding for your food service.
-            </p>
-            <button className="bg-white text-[#D70F64] w-full py-4 rounded-2xl font-black shadow-xl hover:bg-gray-100 transition-all">
-              Go Premium Now
-            </button>
-          </div>
-          {/* Decorative Circle */}
-          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-        </motion.div>
-      </div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }
 
-function PlusCircle(props: any) {
+// Reusable Stat Card Component
+function StatCard({ title, value, icon: Icon, color }: any) {
   return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className="bg-white p-7 rounded-[2.5rem] border border-gray-100 shadow-sm"
+    >
+      <div className={`${color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-inherit opacity-90`}>
+        <Icon size={24} />
+      </div>
+      <h3 className="text-gray-400 font-bold text-xs uppercase tracking-widest">{title}</h3>
+      <p className="text-3xl font-black text-gray-900 mt-2 tracking-tighter">{value}</p>
+    </motion.div>
   );
 }
