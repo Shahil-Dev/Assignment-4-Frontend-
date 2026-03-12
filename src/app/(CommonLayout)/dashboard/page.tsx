@@ -84,14 +84,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-[#D70F64] text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-lg shadow-pink-100"
-        >
-          <PlusCircle size={20} />
-          {user?.role === "PROVIDER" ? "Add New Meal" : "Browse Meals"}
-        </motion.button>
+        
       </div>
 
       {/* Dynamic Stats Grid */}
