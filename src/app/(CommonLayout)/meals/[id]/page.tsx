@@ -17,9 +17,14 @@ export default function MealDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-  useEffect(() => {
-    const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-    if (!user) {
+useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    if (!storedUser || !storedToken) {
+      console.log("No user or token found, redirecting...");
       router.push("/login");
       return;
     }
@@ -28,13 +33,19 @@ export default function MealDetailsPage() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meals/${id}`);
         const data = await res.json();
-        if (data.success) setMeal(data.data);
+        if (data.success) {
+            setMeal(data.data);
+        } else {
+            toast.error("Meal not found");
+        }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching meal details:", error);
+        toast.error("Could not load meal details");
       } finally {
         setLoading(false);
       }
     };
+
     fetchMealDetails();
   }, [id, router]);
 

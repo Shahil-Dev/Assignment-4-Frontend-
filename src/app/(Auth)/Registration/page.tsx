@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { registerSchema } from "@/src/lib/validations";
 import { Mail, Lock, User, ShieldCheck, Loader2, ArrowRight } from "lucide-react";
 import { registerUser } from "@/src/Service/auth";
+
 import { useState } from "react";
 import { Toaster, toast } from "sonner";
 

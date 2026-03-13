@@ -22,7 +22,7 @@ export const MealCard = ({ meal }: { meal: any }) => {
 
 const handleAction = (e: React.MouseEvent, type: "details" | "cart") => {
   e.preventDefault();
-  const user = typeof window !== "undefined" ? localStorage.getItem("USER") : null;
+  const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
 
   if (!user) {
     setIsModalOpen(true);
