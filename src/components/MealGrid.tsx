@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// তোমার অন্য ইমপোর্টগুলো এখানে থাকবে...
 
 export default function MealGrid({ limit }: { limit?: number }) {
   const [meals, setMeals] = useState([]);
@@ -24,7 +23,6 @@ export default function MealGrid({ limit }: { limit?: number }) {
     fetchMeals();
   }, []);
 
-  // যদি limit প্রপস থাকে তবে স্লাইস করবে, নাহলে সব দেখাবে
   const displayedMeals = limit ? meals.slice(0, limit) : meals;
 
   if (loading) return <div>Loading meals...</div>;

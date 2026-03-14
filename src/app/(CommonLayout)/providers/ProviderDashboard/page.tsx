@@ -22,7 +22,6 @@ export default function ProviderDashboard() {
       const token = userStr ? JSON.parse(userStr).token : null;
 
       try {
-        // এই এন্ডপয়েন্টটি তোমার ব্যাকএন্ডে তৈরি থাকতে হবে
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/provider/stats`, {
           headers: { Authorization: `Bearer ${token}` }
         });

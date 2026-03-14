@@ -69,7 +69,6 @@ export default function CreateProviderProfile() {
         toast.success("Provider Profile Created Successfully!");
         router.push("/providers/add-meal"); 
       } else {
-        // যদি অলরেডি প্রোফাইল থাকে, তবে সরাসরি অ্যাড মিলে পাঠিয়ে দাও
         if (data.message === "Provider profile already exists for this user!") {
           toast.info("You already have a profile! Redirecting to add meal...");
           router.push("/providers/add-meal");

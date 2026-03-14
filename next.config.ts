@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**", // এটি যেকোনো ডোমেইন থেকে ইমেজ লোড করার অনুমতি দেবে
+        hostname: "**", 
       },
     ],
   },
