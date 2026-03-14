@@ -13,13 +13,12 @@ export default function AddMealPage() {
   const [loading, setLoading] = useState(false);
   const [mealData, setMealData] = useState({
     name: "",
-    category: "LUNCH", // Default value matching your Enum
+    category: "LUNCH", 
     price: "",
     description: "",
     imageUrl: ""
   });
 
-  // Safe Token Retrieval
   const getToken = () => {
     if (typeof window === "undefined") return null;
     const userStr = localStorage.getItem("user");
@@ -46,16 +45,16 @@ export default function AddMealPage() {
       description: mealData.description,
       price: parseFloat(mealData.price),
       imageUrl: mealData.imageUrl || "",
-      categoryName: mealData.category // নিশ্চিত করো mealData.category তে "LUNCH" আছে
+      categoryName: mealData.category 
     };
 
-    console.log("Sending Payload:", payload); // চেক করার জন্য
+    console.log("Sending Payload:", payload);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meals/create-meal`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // পোস্টম্যানের মতো টোকেন এখানে যাচ্ছে
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });
@@ -64,7 +63,7 @@ export default function AddMealPage() {
 
     if (res.ok && result.success) {
       toast.success("Meal Added Successfully!");
-      router.push("/dashboard");
+      router.push("/providers/ProviderDashboard");
     } else {
       toast.error(result.message || "Failed to add meal");
     }
