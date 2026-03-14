@@ -18,7 +18,6 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ১. সব ইউজার ফেচ করার ফাংশন
   const fetchUsers = async () => {
     const userStr = localStorage.getItem("user");
     const token = userStr ? JSON.parse(userStr).token : null;
@@ -49,18 +48,16 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, []);
 
-  // ২. স্ট্যাটাস পরিবর্তন করার ফাংশন (PATCH Method)
   const handleToggleStatus = async (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "blocked" : "active";
     const userStr = localStorage.getItem("user");
     const token = userStr ? JSON.parse(userStr).token : null;
 
-    // টোস্ট লোডিং স্টেট
     const toastId = toast.loading(`Updating status to ${newStatus}...`);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${userId}/status`, {
-        method: "PATCH", // ব্যাকএন্ডে এটি রাউট করা আছে
+        method: "PATCH", 
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -72,7 +69,7 @@ export default function AdminUsersPage() {
 
       if (res.ok && result.success) {
         toast.success(`User is now ${newStatus}`, { id: toastId });
-        fetchUsers(); // ডাটা রিফ্রেশ করা
+        fetchUsers(); 
       } else {
         toast.error(result.message || "Update failed", { id: toastId });
       }
@@ -82,7 +79,6 @@ export default function AdminUsersPage() {
     }
   };
 
-  // সার্চ ফিল্টারিং
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.email.toLowerCase().includes(searchTerm.toLowerCase())

@@ -14,27 +14,24 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // ফর্ম স্টেট
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     address: "",
-    city: "Chattogram", // Default city
+    city: "Chattogram", 
   });
 
   const handleOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // এখানে তোমার ব্যাকএন্ডে অর্ডার ডাটা পাঠানোর লজিক হবে
-    // আপাতত আমরা একটি ফেক ডিলে (Delay) ব্যবহার করছি
     setTimeout(() => {
       setLoading(false);
       toast.success("Order Placed Successfully!", {
         description: "Your food is being prepared. Check your dashboard for updates.",
       });
       clearCart();
-      router.push("/orders"); // অর্ডার শেষ হলে ইউজারকে অর্ডার হিস্ট্রিতে নিয়ে যাবে
+      router.push("/Orders"); 
     }, 2000);
   };
 

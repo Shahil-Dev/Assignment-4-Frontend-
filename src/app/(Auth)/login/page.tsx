@@ -39,16 +39,14 @@ export default function LoginPage() {
 
       toast.success("Login Successful!");
 
-      // --- REDIRECT LOGIC ---
       if (userData.role === "PROVIDER") {
-        // Jodi backend theke providerProfile ashe (orthat null na hoy)
         if (userData.providerProfile) {
-          router.push("/providers/add-meal"); // Profile thakle add-meal page
+          router.push("/providers/add-meal"); 
         } else {
-          router.push("/providers/create-profile"); // Profile na thakle create-profile page
+          router.push("/");
         }
       } else if (userData.role === "ADMIN") {
-        router.push("/admin/dashboard");
+        router.push("/");
       } else {
         router.push("/dashboard");
       }

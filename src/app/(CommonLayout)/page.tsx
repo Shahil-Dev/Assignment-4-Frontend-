@@ -5,18 +5,13 @@ import MealGrid from "@/src/components/MealGrid";
 
 export default function Home() {
   return (
-    <div className=" min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <HeroSection></HeroSection>
-      <Features></Features>
-      <ChefStory></ChefStory>
-      <MealGrid></MealGrid>
+    <div className="min-h-screen  items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <HeroSection />
+      <Features />
+     <div className="max-w-6xl mx-auto">
+       <MealGrid limit={6} /> 
+     </div>
+      <ChefStory />
     </div>
   );
 }
-
-
-
-
-/**
- *
- */
