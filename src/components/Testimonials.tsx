@@ -50,7 +50,7 @@ export default function Testimonials() {
                       <AvatarImage src={review.avatar} />
                       <AvatarFallback>{review.name[0]}</AvatarFallback>
                     </Avatar>
-                    <p className="text-gray-600 italic mb-6">"{review.comment}"</p>
+                    <p className="text-gray-600 italic mb-6">{review.comment}</p>
                     <h4 className="font-black text-gray-900">{review.name}</h4>
                     <p className="text-[10px] font-black text-[#D70F64] uppercase tracking-tighter">
                       {review.role}

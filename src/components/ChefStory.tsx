@@ -71,7 +71,7 @@ const ChefStory = () => {
 
                             <p className="font-quicksand text-lg text-gray-500 leading-relaxed">
                                 Our kitchen is a lab of flavors where traditional recipes meet modern innovation.
-                                We believe that great food doesn't just fill your stomach—it creates memories
+                                We believe that great food does not just fill your stomach—it creates memories
                                 that last a lifetime. Every ingredient is hand-picked daily to ensure perfection.
                             </p>
                         </motion.div>

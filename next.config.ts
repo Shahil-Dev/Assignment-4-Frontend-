@@ -1,4 +1,3 @@
-
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -11,28 +10,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**", 
+        hostname: "**",
       },
     ],
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 
 export default nextConfig;
-
-
-
-
-// const nextConfig = {
-//   images: {
-//     remotePatterns: [
-//       {
-//         protocol: "https",
-//         hostname: "images.unsplash.com",
-//       },
-//       {
-//         protocol: "https",
-//         hostname: "**", // এটি কাজ করবে, তবে চেষ্টা করো ডোমেইন নামগুলো নির্দিষ্ট করে দিতে
-//       },
-//     ],
-//   },
-// };

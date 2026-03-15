@@ -52,7 +52,7 @@ const AboutUs = () => {
                         <p className="font-quicksand text-lg text-gray-600 leading-relaxed">
                             Founded in 2010, our journey began in a small garage with a big dream:
                             to make gourmet food accessible to everyone. We believed that fast food
-                            doesn't have to be "junk" food.
+                            does not have to be junk food.
                         </p>
                         <p className="font-quicksand text-lg text-gray-600 leading-relaxed">
                             We traveled across continents, learning secret spices and traditional
