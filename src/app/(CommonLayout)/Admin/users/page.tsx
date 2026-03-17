@@ -19,8 +19,13 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
-    const userStr = localStorage.getItem("user");
-    const token = userStr ? JSON.parse(userStr).token : null;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Unauthorized access. Please login again.");
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`, {
@@ -31,6 +36,7 @@ export default function AdminUsersPage() {
       });
 
       const result = await res.json();
+      
       if (result.success) {
         setUsers(result.data);
       } else {
@@ -50,8 +56,7 @@ export default function AdminUsersPage() {
 
   const handleToggleStatus = async (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "blocked" : "active";
-    const userStr = localStorage.getItem("user");
-    const token = userStr ? JSON.parse(userStr).token : null;
+    const token = localStorage.getItem("token");
 
     const toastId = toast.loading(`Updating status to ${newStatus}...`);
 
@@ -75,13 +80,13 @@ export default function AdminUsersPage() {
       }
     } catch (error) {
       console.error("CORS or Network Error:", error);
-      toast.error("CORS Error: PATCH method is blocked by server!", { id: toastId });
+      toast.error("Request failed. Please check backend CORS settings.", { id: toastId });
     }
   };
 
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -131,55 +136,63 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredUsers.map((user) => (
-                  <motion.tr 
-                    key={user.id} 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }}
-                    className="hover:bg-gray-50/50 transition-colors"
-                  >
-                    <td className="p-8">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white font-black text-xl">
-                          {user.name[0]}
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <motion.tr 
+                      key={user.id} 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1 }}
+                      className="hover:bg-gray-50/50 transition-colors"
+                    >
+                      <td className="p-8">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white font-black text-xl uppercase">
+                            {user.name?.[0] || "U"}
+                          </div>
+                          <div>
+                            <p className="font-black text-gray-900 text-lg tracking-tight">{user.name}</p>
+                            <p className="text-gray-400 font-medium text-sm flex items-center gap-1">
+                              <Mail size={12} /> {user.email}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-black text-gray-900 text-lg tracking-tight">{user.name}</p>
-                          <p className="text-gray-400 font-medium text-sm flex items-center gap-1">
-                            <Mail size={12} /> {user.email}
-                          </p>
+                      </td>
+                      <td className="p-8">
+                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                          user.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="p-8">
+                        <div className={`flex items-center gap-2 font-black text-sm ${
+                          user.status === 'active' ? 'text-emerald-500' : 'text-red-500'
+                        }`}>
+                          {user.status === 'active' ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
+                          {(user.status || "N/A").toUpperCase()}
                         </div>
-                      </div>
+                      </td>
+                      <td className="p-8 text-right">
+                        <button 
+                          onClick={() => handleToggleStatus(user.id, user.status)}
+                          className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 ${
+                            user.status === 'active' 
+                            ? 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white' 
+                            : 'bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white'
+                          }`}
+                        >
+                          {user.status === 'active' ? 'Block Access' : 'Authorize User'}
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="p-20 text-center text-gray-400 font-bold uppercase tracking-widest">
+                      No users found.
                     </td>
-                    <td className="p-8">
-                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${
-                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="p-8">
-                      <div className={`flex items-center gap-2 font-black text-sm ${
-                        user.status === 'active' ? 'text-emerald-500' : 'text-red-500'
-                      }`}>
-                        {user.status === 'active' ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
-                        {user.status.toUpperCase()}
-                      </div>
-                    </td>
-                    <td className="p-8 text-right">
-                      <button 
-                        onClick={() => handleToggleStatus(user.id, user.status)}
-                        className={`px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 ${
-                          user.status === 'active' 
-                          ? 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white' 
-                          : 'bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white'
-                        }`}
-                      >
-                        {user.status === 'active' ? 'Block Access' : 'Authorize User'}
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

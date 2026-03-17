@@ -17,26 +17,15 @@ export default function MealDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (!storedUser || !storedToken) {
-      console.log("No user or token found, redirecting...");
-      router.push("/login");
-      return;
-    }
-
+  useEffect(() => {
     const fetchMealDetails = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/meals/${id}`);
         const data = await res.json();
         if (data.success) {
-            setMeal(data.data);
+          setMeal(data.data);
         } else {
-            toast.error("Meal not found");
+          toast.error("Meal not found");
         }
       } catch (error) {
         console.error("Error fetching meal details:", error);
@@ -46,10 +35,20 @@ useEffect(() => {
       }
     };
 
-    fetchMealDetails();
-  }, [id, router]);
+    if (id) {
+      fetchMealDetails();
+    }
+  }, [id]);
 
   const handleAddToCart = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Please login first to add items to cart!");
+      router.push("/login");
+      return;
+    }
+
     addToCart({
       id: meal.id,
       name: meal.name,
@@ -61,7 +60,7 @@ useEffect(() => {
     toast.success(`${quantity} plate(s) of ${meal.name} added to cart!`);
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center font-black text-[#D70F64] animate-pulse">Loading...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center font-black text-[#D70F64] animate-pulse text-2xl uppercase italic">Loading...</div>;
   if (!meal) return <div className="h-screen flex items-center justify-center font-bold">Meal not found!</div>;
 
   return (
@@ -81,7 +80,7 @@ useEffect(() => {
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             <span className="bg-pink-100 text-[#D70F64] text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-4 inline-block">
-                {meal.category?.name}
+                {meal.category?.name || "Delicious Meal"}
             </span>
             <h1 className="text-4xl lg:text-6xl font-black text-gray-900 leading-tight mb-6 italic tracking-tighter">
                 {meal.name}
@@ -99,11 +98,11 @@ useEffect(() => {
             <div className="bg-gray-50 rounded-[2rem] p-5 border border-gray-100 mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm uppercase">
-                        {meal.provider?.businessName?.[0]}
+                        {meal.provider?.businessName?.[0] || "P"}
                     </div>
                     <div>
                         <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">Provider</p>
-                        <p className="font-bold text-gray-900 text-sm">{meal.provider?.businessName}</p>
+                        <p className="font-bold text-gray-900 text-sm">{meal.provider?.businessName || "Verified Provider"}</p>
                     </div>
                 </div>
                 <ShieldCheck className="text-emerald-500" size={24} />
@@ -115,9 +114,9 @@ useEffect(() => {
                     <p className="text-4xl font-black text-gray-900">${meal.price}</p>
                 </div>
                 <div className="flex items-center bg-gray-100 rounded-2xl p-1">
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 font-bold">-</button>
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 font-bold hover:text-[#D70F64]">-</button>
                     <span className="w-10 text-center font-black">{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 font-bold">+</button>
+                    <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 font-bold hover:text-[#D70F64]">+</button>
                 </div>
             </div>
 
